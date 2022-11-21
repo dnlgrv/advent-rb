@@ -1,5 +1,7 @@
 # Advent
 
+[![Gem Version](https://badge.fury.io/rb/advent.svg)](https://badge.fury.io/rb/advent)
+
 Have fun with the [Advent of Code](https://rubygems.org) using Ruby.
 
 ## Installation
