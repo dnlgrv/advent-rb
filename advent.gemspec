@@ -17,4 +17,6 @@ Gem::Specification.new do |spec|
   spec.files = Dir["lib/**/*", "LICENSE.txt", "Rakefile", "README.md"]
   spec.executables = ["advent"]
   spec.require_paths = ["lib"]
+
+  spec.add_dependency "thor", "~> 1.2"
 end
