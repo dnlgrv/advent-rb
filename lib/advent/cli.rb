@@ -12,28 +12,8 @@ module Advent
 
     desc "solve YEAR DAY", "Solve your solution for YEAR and DAY"
     def solve(year, day)
-      if in_year_directory?
-        require root_path.join("day#{day}.rb").to_s
-      else
-        require root_path.join(year.to_s, "day#{day}.rb")
-      end
-
-      solution = Object.const_get("Day#{day}").new
-
-      part1_value = if solution.respond_to?(:part1)
-        solution.part1
-      else
-        "Missing"
-      end
-
-      part2_value = if solution.respond_to?(:part2)
-        solution.part2
-      else
-        "Missing"
-      end
-
-      say "Part 1: #{part1_value}"
-      say "Part 2: #{part2_value}"
+      require "advent/cli/solver"
+      Solver.new(self, root_path: root_path, year: year, day: day).solve
     end
 
     desc "version", "Prints the current version of Advent"
@@ -49,11 +29,6 @@ module Advent
       else
         Pathname.new(options.root_path)
       end
-    end
-
-    def in_year_directory?
-      dir = root_path.basename.to_s
-      dir =~ /^20[0-9]{2}/
     end
   end
 end
