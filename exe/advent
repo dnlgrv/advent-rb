@@ -2,6 +2,6 @@
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
-require "advent"
+require "advent/cli"
 
-puts "Advent (VERSION: #{Advent::VERSION})"
+Advent::CLI.start
