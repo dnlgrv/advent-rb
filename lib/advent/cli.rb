@@ -6,6 +6,8 @@ require "thor"
 
 module Advent
   class CLI < Thor
+    include Thor::Actions
+
     class_option :root_path, default: Dir.pwd, hide: true, check_default_type: false
 
     def initialize(*args)
@@ -32,6 +34,17 @@ module Advent
           Pathname.new(options.root_path)
         end
       end
+    end
+
+    desc "generate YEAR DAY or generate DAY in a year directory", "Generate a new solution for YEAR and DAY"
+    def generate(year_or_day, day = nil)
+      destination = if in_year_directory?
+        "day#{year_or_day}.rb"
+      else
+        "#{year_or_day}/day#{day}.rb"
+      end
+
+      template "solution.rb.tt", destination, context: binding
     end
 
     desc "solve YEAR DAY", "Solve your solution for YEAR and DAY"
