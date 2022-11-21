@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Advent::CLI::Solver
   PARTS = [1, 2]
 

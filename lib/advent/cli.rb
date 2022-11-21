@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "advent"
 require "pathname"
 require "thor"
