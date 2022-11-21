@@ -20,13 +20,14 @@ class Advent::CLI::Solver
 
     PARTS.each do |n|
       method_name = "part#{n}".to_sym
-      result = if solution.respond_to?(method_name)
-        solution.public_send(method_name)
-      else
-        "Missing"
+
+      result, colour = if solution.respond_to?(method_name)
+        [solution.public_send(method_name), :green]
       end
 
-      @command.say "Part #{n}: #{result}"
+      result, colour = ["Missing", :red] if result.nil?
+
+      @command.say "Part #{n}: #{result}", colour, true
     end
   end
 
