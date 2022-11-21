@@ -1,0 +1,11 @@
+# frozen_string_literal: true
+
+require "advent"
+
+class Day<%= day %> < Advent::Solution
+  def part1(input: load_input)
+  end
+
+  def part2(input: load_input)
+  end
+end
