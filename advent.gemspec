@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.authors = ["Daniel Grieve"]
   spec.email = ["dnlgrv@hey.com"]
   spec.summary = "Have fun with the Advent of Code using Ruby."
-  spec.homepage = "https://github.com/dnlgrv/advent"
+  spec.homepage = "https://github.com/dnlgrv/advent-rb"
   spec.license = "MIT"
 
   spec.required_ruby_version = ">= 2.7.0"
