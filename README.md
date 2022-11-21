@@ -1,6 +1,6 @@
 # Advent
 
-Have fun with the [Advent of Code](https://rubygems.org).
+Have fun with the [Advent of Code](https://rubygems.org) using Ruby.
 
 ## Installation
 
@@ -14,7 +14,9 @@ If bundler is not being used to manage dependencies, install the gem by executin
 
 ## Usage
 
-TODO: Write usage instructions here
+A list of commands and help is available using `advent`:
+
+    $ advent help
 
 ## Development
 
