@@ -20,7 +20,7 @@ class Advent::CLITest < Minitest::Test
 
   def test_solve_from_parent_directory
     out, _err = capture_io do
-      @cli.invoke(:solve, ["2015", "1"])
+      @cli.invoke(:solve, ["2015/day1.rb"])
     end
 
     assert_equal "Part 1: 123\nPart 2: 456", out.strip
@@ -28,7 +28,7 @@ class Advent::CLITest < Minitest::Test
 
   def test_solve_from_year_directory
     out, _err = capture_io do
-      @year_cli.invoke(:solve, ["2015", "2"])
+      @year_cli.invoke(:solve, ["day2.rb"])
     end
 
     assert_equal "Part 1: 789\nPart 2: Missing", out.strip

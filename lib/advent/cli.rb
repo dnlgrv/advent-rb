@@ -40,7 +40,6 @@ module Advent
     end
 
     desc "generate YEAR DAY", "Generate a new solution for YEAR and DAY"
-
     # Generates a new solution file. If within a year directory, only the day
     # is used, otherwise both the year and day will be required to generate the
     # output.
@@ -54,12 +53,11 @@ module Advent
       template "solution.rb.tt", destination, context: binding
     end
 
-    desc "solve YEAR DAY", "Solve your solution for YEAR and DAY"
-
-    # Runs a solution, outputting both :part1 and :part2 method return values.
-    def solve(year, day)
+    desc "solve FILE", "Solve your solution"
+    # Runs a solution file, outputting both :part1 and :part2 method return values.
+    def solve(path)
       require "advent/cli/solver"
-      Solver.new(self, year: year, day: day).solve
+      Solver.new(self, root_path.join(path)).solve
     end
 
     desc "version", "Prints the current version of the gem"
