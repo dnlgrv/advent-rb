@@ -3,14 +3,17 @@
 class Advent::CLI::Solver
   PARTS = [1, 2]
 
+  module Solutions
+  end
+
   def initialize(command, path)
     @command = command
     @path = path
   end
 
   def solve
-    require @path
-    solution = Object.const_get(solution_class_name).new
+    load @path, Solutions
+    solution = Solutions.const_get(solution_class_name).new
 
     PARTS.each do |n|
       method_name = "part#{n}".to_sym
