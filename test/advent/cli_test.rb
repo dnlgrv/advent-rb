@@ -39,10 +39,12 @@ class Advent::CLITest < Minitest::Test
       @cli.invoke(:generate, ["2015", "3"])
     end
 
-    expected_file_path = DUMMY_ROOT_PATH.join("2015", "day3.rb")
-    assert File.exist? expected_file_path
+    ["day3.rb", "test/day3_test.rb"].each do |file_name|
+      expected_file_path = DUMMY_ROOT_PATH.join("2015", file_name)
+      assert File.exist? expected_file_path
 
-    File.delete expected_file_path
+      File.delete expected_file_path
+    end
   end
 
   def test_generate_solution_from_year_directory_with_day
@@ -50,9 +52,11 @@ class Advent::CLITest < Minitest::Test
       @year_cli.invoke(:generate, ["3"])
     end
 
-    expected_file_path = DUMMY_ROOT_PATH.join("2015", "day3.rb")
-    assert File.exist? expected_file_path
+    ["day3.rb", "test/day3_test.rb"].each do |file_name|
+      expected_file_path = DUMMY_ROOT_PATH.join("2015", file_name)
+      assert File.exist? expected_file_path
 
-    File.delete expected_file_path
+      File.delete expected_file_path
+    end
   end
 end

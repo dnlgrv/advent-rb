@@ -44,13 +44,20 @@ module Advent
     # is used, otherwise both the year and day will be required to generate the
     # output.
     def generate(year_or_day, day = nil)
-      destination = if in_year_directory?
-        "day#{year_or_day}.rb"
+      year, day = if in_year_directory?
+        [root_path.basename.to_s, year_or_day]
       else
-        "#{year_or_day}/day#{day}.rb"
+        [year_or_day, day]
       end
 
-      template "solution.rb.tt", destination, context: binding
+      subpath = if in_year_directory?
+        ""
+      else
+        "#{year}/"
+      end
+
+      template "solution.rb.tt", "#{subpath}day#{day}.rb", context: binding
+      template "solution_test.rb.tt", "#{subpath}test/day#{day}_test.rb", context: binding
     end
 
     desc "solve FILE", "Solve your solution"
