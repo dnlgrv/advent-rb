@@ -3,19 +3,13 @@
 class Advent::CLI::Solver
   PARTS = [1, 2]
 
-  def initialize(command, year:, day:)
+  def initialize(command, path)
     @command = command
-    @year = year
-    @day = day
+    @path = path
   end
 
   def solve
-    if @command.in_year_directory?
-      require @command.root_path.join(solution_file_name).to_s
-    else
-      require @command.root_path.join(@year.to_s, solution_file_name)
-    end
-
+    require @path
     solution = Object.const_get(solution_class_name).new
 
     PARTS.each do |n|
@@ -33,11 +27,15 @@ class Advent::CLI::Solver
 
   private
 
+  def day
+    @_day ||= @path.basename.to_s.match(/day([0-9]+)\.rb/)[1]
+  end
+
   def solution_file_name
-    "day#{@day}.rb"
+    "day#{day}.rb"
   end
 
   def solution_class_name
-    "Day#{@day}"
+    "Day#{day}"
   end
 end
