@@ -2,12 +2,21 @@
 
 require "test_helper"
 
-require "date"
 require "advent/cli"
+require "date"
 
 class Advent::CLITest < Minitest::Test
   def setup
-    @cli = Advent::CLI.new([], root_path: DUMMY_ROOT_PATH)
+    @session = "abc123"
+
+    http_mock = MockHTTP.new
+    http_mock.add_response(
+      "https://adventofcode.com/2015/day/3/input",
+      "session=#{@session}; path=",
+      "day 3 input"
+    )
+
+    @cli = Advent::CLI.new([], root_path: DUMMY_ROOT_PATH, http_module: http_mock)
     @year_cli = Advent::CLI.new([], root_path: DUMMY_ROOT_PATH.join("2015"))
   end
 
@@ -104,5 +113,62 @@ class Advent::CLITest < Minitest::Test
     end
 
     assert_equal "Day must be between 1 and 25 (inclusive).", err.strip
+  end
+
+  def test_download_input
+    out, _err = capture_io do
+      with_stdin_input(@session) do
+        @cli.invoke(:download, ["2015", "3"])
+      end
+    end
+
+    input_path = DUMMY_ROOT_PATH.join("2015", ".day3.input.txt")
+    assert File.exist?(input_path)
+    assert_equal "day 3 input", File.read(input_path)
+    assert_match(/Input downloaded to #{input_path}/, out.strip)
+  ensure
+    File.delete input_path
+  end
+
+  def test_download_input_failure
+    _out, err = capture_io do
+      with_stdin_input("invalid") do
+        @cli.invoke(:download, ["2015", "3"])
+      end
+    end
+
+    input_path = DUMMY_ROOT_PATH.join("2015", ".day3.input.txt")
+    refute File.exist?(input_path)
+    assert_match(/Something went wrong/, err.strip)
+  end
+
+  private
+
+  def with_stdin_input(input)
+    require "stringio"
+
+    io = MockSTDIN.new
+    io.puts input
+    io.rewind
+
+    real_stdin, $stdin = $stdin, io
+    yield
+  ensure
+    $stdin = real_stdin
+  end
+
+  def with_readline_input(input)
+    require "readline"
+    input_file_name = "#{name}.input"
+
+    f = File.open(input_file_name, "w+")
+    f.write input
+    f.rewind
+
+    ::Readline.input = f
+    yield
+  ensure
+    f.close
+    File.delete input_file_name
   end
 end

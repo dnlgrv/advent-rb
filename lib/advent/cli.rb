@@ -10,6 +10,7 @@ module Advent
     include Thor::Actions
 
     class_option :root_path, default: Dir.pwd, hide: true, check_default_type: false
+    class_option :http_module, default: Net::HTTP, check_default_type: false
 
     def initialize(*args)
       super
@@ -32,16 +33,38 @@ module Advent
       end
     end
 
+    desc "download YEAR DAY", "Download the input for YEAR and DAY"
+    def download(year_or_day, day = nil)
+      year, day = determine_year_and_day(year_or_day, day)
+
+      if (error_message = validate(year, day))
+        say_error error_message, :red
+        return
+      end
+
+      subpath = if in_year_directory?
+        ""
+      else
+        "#{year}/"
+      end
+
+      session = ask "What is your Advent of Code session cookie value?", echo: false
+
+      input = Advent::Input.new(root_path.join(subpath), day: day.to_i)
+
+      if input.download(session, options.http_module)
+        say "Input downloaded to #{input.file_path}", :green
+      else
+        say_error "Something went wrong, maybe an old session cookie?", :red
+      end
+    end
+
     desc "generate YEAR DAY", "Generate a new solution for YEAR and DAY"
     # Generates a new solution file. If within a year directory, only the day
     # is used, otherwise both the year and day will be required to generate the
     # output.
     def generate(year_or_day, day = nil)
-      year, day = if in_year_directory?
-        [root_path.basename.to_s, parse_number(year_or_day)]
-      else
-        [year_or_day, parse_number(day)]
-      end
+      year, day = determine_year_and_day(year_or_day, day)
 
       if (error_message = validate(year, day))
         say_error error_message, :red
@@ -72,6 +95,14 @@ module Advent
     end
 
     private
+
+    def determine_year_and_day(year_or_day, day)
+      if in_year_directory?
+        [root_path.basename.to_s, parse_number(year_or_day)]
+      else
+        [year_or_day, parse_number(day)]
+      end
+    end
 
     def root_path
       @_root_path ||= if options.root_path.is_a?(Pathname)
