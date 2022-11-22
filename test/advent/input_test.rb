@@ -2,22 +2,6 @@
 
 require "test_helper"
 
-MockHTTP = Struct.new("MockHTTP") do
-  def initialize
-    @responses = {}
-  end
-
-  def add_response(url, cookie, body)
-    @responses[url] = {body: body, cookie: cookie}
-  end
-
-  def get(uri, headers)
-    if (response = @responses[uri.to_s]) && response[:cookie] == headers["Cookie"]
-      response[:body]
-    end
-  end
-end
-
 class Advent::InputTest < Minitest::Test
   def setup
     @input = Advent::Input.new(DUMMY_ROOT_PATH.join("2015"), day: 3)
