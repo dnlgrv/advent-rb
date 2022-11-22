@@ -3,14 +3,24 @@
 class Advent::CLI::Solver
   PARTS = [1, 2]
 
+  if RUBY_VERSION >= "3.1"
+    module Solutions
+    end
+  end
+
   def initialize(command, path)
     @command = command
     @path = path
   end
 
   def solve
-    require @path
-    solution = Object.const_get(solution_class_name).new
+    if RUBY_VERSION >= "3.1"
+      load @path, Solutions
+      solution = Solutions.const_get(solution_class_name).new
+    else
+      require @path
+      solution = Object.const_get(solution_class_name).new
+    end
 
     PARTS.each do |n|
       method_name = "part#{n}".to_sym
