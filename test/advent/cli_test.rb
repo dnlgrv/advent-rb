@@ -2,6 +2,7 @@
 
 require "test_helper"
 
+require "date"
 require "advent/cli"
 
 class Advent::CLITest < Minitest::Test
@@ -58,5 +59,37 @@ class Advent::CLITest < Minitest::Test
 
       File.delete expected_file_path
     end
+  end
+
+  def test_generate_solution_valid_minimum_year
+    _out, err = capture_io do
+      @cli.invoke(:generate, ["2013", "1"])
+    end
+
+    assert_equal "Advent of Code only started in 2014!", err.strip
+  end
+
+  def test_generate_solution_valid_maximum_year
+    _out, err = capture_io do
+      @cli.invoke(:generate, [Date.today.year + 1, "1"])
+    end
+
+    assert_equal "Future years are not supported.", err.strip
+  end
+
+  def test_generate_solution_valid_minimum_day
+    _out, err = capture_io do
+      @cli.invoke(:generate, ["2015", "0"])
+    end
+
+    assert_equal "Day must be between 1 and 25 (inclusive).", err.strip
+  end
+
+  def test_generate_solution_valid_maximum_day
+    _out, err = capture_io do
+      @cli.invoke(:generate, ["2015", "26"])
+    end
+
+    assert_equal "Day must be between 1 and 25 (inclusive).", err.strip
   end
 end

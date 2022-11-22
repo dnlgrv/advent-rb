@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "advent"
+require "date"
 require "pathname"
 require "thor"
 
@@ -48,6 +49,10 @@ module Advent
         [root_path.basename.to_s, year_or_day]
       else
         [year_or_day, day]
+
+      if (error_message = validate(year, day))
+        say_error error_message, :red
+        return
       end
 
       subpath = if in_year_directory?
@@ -71,6 +76,18 @@ module Advent
     # Prints the current version of the gem
     def version
       say Advent::VERSION
+    end
+
+    private
+
+    def validate(year, day)
+      if year.to_i < 2014
+        "Advent of Code only started in 2014!"
+      elsif year.to_i > Date.today.year
+        "Future years are not supported."
+      elsif !(1..25).cover? day.to_i
+        "Day must be between 1 and 25 (inclusive)."
+      end
     end
   end
 end
