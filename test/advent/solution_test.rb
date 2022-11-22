@@ -2,7 +2,7 @@
 
 require "test_helper"
 
-class Advent::SolutionTest < Minitest::Test
+class Advent::SolutionTest < Advent::TestCase
   def setup
     require DUMMY_ROOT_PATH.join("2015", "day1.rb").to_s
 

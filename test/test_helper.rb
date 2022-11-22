@@ -7,6 +7,37 @@ require "minitest/autorun"
 
 DUMMY_ROOT_PATH = Pathname.new File.expand_path("dummy", __dir__)
 
+class Advent::TestCase < Minitest::Test
+  def with_stdin_input(input)
+    require "stringio"
+
+    io = MockSTDIN.new
+    io.puts input
+    io.rewind
+
+    real_stdin, $stdin = $stdin, io
+    yield
+  ensure
+    $stdin = real_stdin
+  end
+
+  def with_readline_input(input)
+    require "readline"
+
+    input_file_name = "#{name}.input"
+
+    f = File.open(input_file_name, "w+")
+    f.write input
+    f.rewind
+
+    ::Readline.input = f
+    yield
+  ensure
+    f.close
+    File.delete input_file_name
+  end
+end
+
 class MockHTTP
   def initialize
     @responses = {}

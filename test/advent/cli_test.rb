@@ -5,7 +5,7 @@ require "test_helper"
 require "advent/cli"
 require "date"
 
-class Advent::CLITest < Minitest::Test
+class Advent::CLITest < Advent::TestCase
   def setup
     @session = "abc123"
 
@@ -140,35 +140,5 @@ class Advent::CLITest < Minitest::Test
     input_path = DUMMY_ROOT_PATH.join("2015", ".day3.input.txt")
     refute File.exist?(input_path)
     assert_match(/Something went wrong/, err.strip)
-  end
-
-  private
-
-  def with_stdin_input(input)
-    require "stringio"
-
-    io = MockSTDIN.new
-    io.puts input
-    io.rewind
-
-    real_stdin, $stdin = $stdin, io
-    yield
-  ensure
-    $stdin = real_stdin
-  end
-
-  def with_readline_input(input)
-    require "readline"
-    input_file_name = "#{name}.input"
-
-    f = File.open(input_file_name, "w+")
-    f.write input
-    f.rewind
-
-    ::Readline.input = f
-    yield
-  ensure
-    f.close
-    File.delete input_file_name
   end
 end

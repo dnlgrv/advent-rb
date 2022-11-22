@@ -2,7 +2,7 @@
 
 require "test_helper"
 
-class Advent::InputTest < Minitest::Test
+class Advent::InputTest < Advent::TestCase
   def setup
     @input = Advent::Input.new(DUMMY_ROOT_PATH.join("2015"), day: 3)
 
