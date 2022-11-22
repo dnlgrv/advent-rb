@@ -61,6 +61,19 @@ class Advent::CLITest < Minitest::Test
     end
   end
 
+  def test_generate_solution_with_non_numbers_in_day
+    capture_io do
+      @year_cli.invoke(:generate, ["day3"])
+    end
+
+    ["day3.rb", "test/day3_test.rb"].each do |file_name|
+      expected_file_path = DUMMY_ROOT_PATH.join("2015", file_name)
+      assert File.exist? expected_file_path
+
+      File.delete expected_file_path
+    end
+  end
+
   def test_generate_solution_valid_minimum_year
     _out, err = capture_io do
       @cli.invoke(:generate, ["2013", "1"])
