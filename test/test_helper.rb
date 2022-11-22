@@ -6,3 +6,9 @@ require "advent"
 require "minitest/autorun"
 
 DUMMY_ROOT_PATH = Pathname.new File.expand_path("dummy", __dir__)
+
+class MockSTDIN < StringIO
+  def noecho
+    yield self
+  end
+end
