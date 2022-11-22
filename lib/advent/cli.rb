@@ -17,11 +17,14 @@ module Advent
       source_paths << File.expand_path("templates", __dir__)
     end
 
+    # @return [Boolean] defines whether an exit status is set if a command fails
     def self.exit_on_failure?
       true
     end
 
     no_commands do
+      # @return [Boolean] whether the current root_path option is in a
+      # directory that looks like a year (eg. 2015)
       def in_year_directory?
         dir = root_path.basename.to_s
         dir =~ /^20[0-9]{2}/
@@ -36,7 +39,11 @@ module Advent
       end
     end
 
-    desc "generate YEAR DAY or generate DAY in a year directory", "Generate a new solution for YEAR and DAY"
+    desc "generate YEAR DAY", "Generate a new solution for YEAR and DAY"
+
+    # Generates a new solution file. If within a year directory, only the day
+    # is used, otherwise both the year and day will be required to generate the
+    # output.
     def generate(year_or_day, day = nil)
       destination = if in_year_directory?
         "day#{year_or_day}.rb"
@@ -48,12 +55,15 @@ module Advent
     end
 
     desc "solve YEAR DAY", "Solve your solution for YEAR and DAY"
+
+    # Runs a solution, outputting both :part1 and :part2 method return values.
     def solve(year, day)
       require "advent/cli/solver"
       Solver.new(self, year: year, day: day).solve
     end
 
-    desc "version", "Prints the current version of Advent"
+    desc "version", "Prints the current version of the gem"
+    # Prints the current version of the gem
     def version
       say Advent::VERSION
     end
