@@ -30,14 +30,6 @@ module Advent
         dir = root_path.basename.to_s
         dir =~ /^20[0-9]{2}/
       end
-
-      def root_path
-        @_root_path ||= if options.root_path.is_a?(Pathname)
-          options.root_path
-        else
-          Pathname.new(options.root_path)
-        end
-      end
     end
 
     desc "generate YEAR DAY", "Generate a new solution for YEAR and DAY"
@@ -80,6 +72,14 @@ module Advent
     end
 
     private
+
+    def root_path
+      @_root_path ||= if options.root_path.is_a?(Pathname)
+        options.root_path
+      else
+        Pathname.new(options.root_path)
+      end
+    end
 
     def parse_number(str)
       if (m = str.match(/[0-9]+/))
