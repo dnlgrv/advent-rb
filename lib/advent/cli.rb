@@ -59,7 +59,7 @@ module Advent
 
       if input.download(Advent.session.value, options.http_module)
         say "Input downloaded to #{input.file_path}.", :green
-        say "Using #load_input in your daily solution will load the input file for you."
+        say "\nUsing #load_input in your daily solution will load the input file for you."
       else
         say_error "Something went wrong, maybe an old session cookie?", :red
       end
