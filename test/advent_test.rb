@@ -2,7 +2,7 @@
 
 require "test_helper"
 
-class TestAdvent < Minitest::Test
+class TestAdvent < Advent::TestCase
   def test_that_it_has_a_version_number
     refute_nil ::Advent::VERSION
   end

@@ -16,11 +16,12 @@ module Advent
 
       @year = year
       @day = day
+
+      @input = Input.new(source_location.dirname, day: day)
     end
 
     def load_input
-      dir = source_location.dirname
-      File.read(dir.join(".day#{@day}.input.txt"))
+      File.read(@input.file_path)
     end
 
     private

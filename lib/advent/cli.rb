@@ -10,6 +10,7 @@ module Advent
     include Thor::Actions
 
     class_option :root_path, default: Dir.pwd, hide: true, check_default_type: false
+    class_option :http_module, default: Net::HTTP, check_default_type: false
 
     def initialize(*args)
       super
@@ -30,13 +31,37 @@ module Advent
         dir = root_path.basename.to_s
         dir =~ /^20[0-9]{2}/
       end
+    end
 
-      def root_path
-        @_root_path ||= if options.root_path.is_a?(Pathname)
-          options.root_path
-        else
-          Pathname.new(options.root_path)
-        end
+    desc "download YEAR DAY", "Download the input for YEAR and DAY"
+    def download(year_or_day, day = nil)
+      year, day = determine_year_and_day(year_or_day, day)
+
+      if (error_message = validate(year, day))
+        say_error error_message, :red
+        return
+      end
+
+      subpath = if in_year_directory?
+        ""
+      else
+        "#{year}/"
+      end
+
+      unless Advent.session.exist?
+        session = ask "What is your Advent of Code session cookie value?", echo: false
+        Advent.session.value = session
+
+        say "\n\nThanks. Psst, we're going to save this for next time. It's in .advent_session if you need to update or delete it.\n\n"
+      end
+
+      input = Advent::Input.new(root_path.join(subpath), day: day.to_i)
+
+      if input.download(Advent.session.value, options.http_module)
+        say "Input downloaded to #{input.file_path}.", :green
+        say "\nUsing #load_input in your daily solution will load the input file for you."
+      else
+        say_error "Something went wrong, maybe an old session cookie?", :red
       end
     end
 
@@ -45,11 +70,7 @@ module Advent
     # is used, otherwise both the year and day will be required to generate the
     # output.
     def generate(year_or_day, day = nil)
-      year, day = if in_year_directory?
-        [root_path.basename.to_s, parse_number(year_or_day)]
-      else
-        [year_or_day, parse_number(day)]
-      end
+      year, day = determine_year_and_day(year_or_day, day)
 
       if (error_message = validate(year, day))
         say_error error_message, :red
@@ -80,6 +101,22 @@ module Advent
     end
 
     private
+
+    def determine_year_and_day(year_or_day, day)
+      if in_year_directory?
+        [root_path.basename.to_s, parse_number(year_or_day)]
+      else
+        [year_or_day, parse_number(day)]
+      end
+    end
+
+    def root_path
+      @_root_path ||= if options.root_path.is_a?(Pathname)
+        options.root_path
+      else
+        Pathname.new(options.root_path)
+      end
+    end
 
     def parse_number(str)
       if (m = str.match(/[0-9]+/))
