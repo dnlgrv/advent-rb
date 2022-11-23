@@ -39,6 +39,8 @@ class Advent::TestCase < Minitest::Test
 end
 
 class MockHTTP
+  MockResponse = Struct.new(:code, :body)
+
   def initialize
     @responses = {}
   end
@@ -47,9 +49,11 @@ class MockHTTP
     @responses[url] = {body: body, cookie: cookie}
   end
 
-  def get(uri, headers)
+  def get_response(uri, headers)
     if (response = @responses[uri.to_s]) && response[:cookie] == headers["Cookie"]
-      response[:body]
+      MockResponse.new("200", response[:body])
+    else
+      MockResponse.new("400", nil)
     end
   end
 end

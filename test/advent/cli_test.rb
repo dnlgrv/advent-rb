@@ -179,6 +179,7 @@ class Advent::CLITest < Advent::TestCase
     refute File.exist?(input_path)
     assert_match(/Something went wrong/, err.strip)
   ensure
+    File.delete input_path if File.exist? input_path
     Advent.session.clear
   end
 end

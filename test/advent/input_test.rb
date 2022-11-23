@@ -27,6 +27,6 @@ class Advent::InputTest < Advent::TestCase
     assert @input.download("abc123", @http_mock)
     assert_equal "day 10 input", File.read(@input.file_path)
   ensure
-    File.delete(@input.file_path)
+    File.delete(@input.file_path) if @input.exist?
   end
 end

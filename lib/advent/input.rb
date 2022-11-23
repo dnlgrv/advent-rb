@@ -21,10 +21,10 @@ module Advent
 
     def download(session, http = Net::HTTP)
       session_cookie = CGI::Cookie.new("session", session)
-      response = http.get(input_url, {"Cookie" => session_cookie.to_s})
+      response = http.get_response(input_url, {"Cookie" => session_cookie.to_s})
 
-      if response
-        File.write(file_path, response)
+      if success?(response)
+        File.write(file_path, response.body)
         true
       else
         false
@@ -39,6 +39,10 @@ module Advent
 
     def year
       @_year ||= @dir.basename
+    end
+
+    def success?(response)
+      response.code >= "200" && response.code < "300"
     end
   end
 end
