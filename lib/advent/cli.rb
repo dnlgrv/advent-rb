@@ -48,12 +48,18 @@ module Advent
         "#{year}/"
       end
 
-      session = ask "What is your Advent of Code session cookie value?", echo: false
+      unless Advent.session.exist?
+        session = ask "What is your Advent of Code session cookie value?", echo: false
+        Advent.session.value = session
+
+        say "\n\nThanks. Psst, we're going to save this for next time. It's in .advent_session if you need to update or delete it.\n\n"
+      end
 
       input = Advent::Input.new(root_path.join(subpath), day: day.to_i)
 
-      if input.download(session, options.http_module)
-        say "Input downloaded to #{input.file_path}", :green
+      if input.download(Advent.session.value, options.http_module)
+        say "Input downloaded to #{input.file_path}.", :green
+        say "Using #load_input in your daily solution will load the input file for you."
       else
         say_error "Something went wrong, maybe an old session cookie?", :red
       end

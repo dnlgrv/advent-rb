@@ -15,6 +15,16 @@ class Advent::CLITest < Advent::TestCase
       "session=#{@session}; path=",
       "day 3 input"
     )
+    http_mock.add_response(
+      "https://adventofcode.com/2015/day/4/input",
+      "session=#{@session}; path=",
+      "day 4 input"
+    )
+    http_mock.add_response(
+      "https://adventofcode.com/2015/day/5/input",
+      "session=#{@session}; path=",
+      "day 5 input"
+    )
 
     @cli = Advent::CLI.new([], root_path: DUMMY_ROOT_PATH, http_module: http_mock)
     @year_cli = Advent::CLI.new([], root_path: DUMMY_ROOT_PATH.join("2015"))
@@ -130,15 +140,45 @@ class Advent::CLITest < Advent::TestCase
     File.delete input_path
   end
 
-  def test_download_input_failure
-    _out, err = capture_io do
-      with_stdin_input("invalid") do
-        @cli.invoke(:download, ["2015", "3"])
+  def test_download_persists_session_cookie
+    with_stdin_input(@session) do
+      capture_io do
+        @cli.invoke(:download, ["2015", "4"])
       end
     end
 
-    input_path = DUMMY_ROOT_PATH.join("2015", ".day3.input.txt")
+    assert_equal @session, Advent.session.value
+  ensure
+    File.delete DUMMY_ROOT_PATH.join("2015", ".day4.input.txt")
+    Advent.session.clear
+  end
+
+  def test_download_skips_asking_for_session_cookie
+    Advent.session.value = @session
+
+    out, _err = capture_io do
+      with_stdin_input("not needed") do
+        @cli.invoke(:download, ["2015", "5"])
+      end
+    end
+
+    refute_match(/session cookie value/, out)
+  ensure
+    File.delete DUMMY_ROOT_PATH.join("2015", ".day5.input.txt")
+    Advent.session.clear
+  end
+
+  def test_download_input_failure
+    _out, err = capture_io do
+      with_stdin_input("invalid") do
+        @cli.invoke(:download, ["2015", "6"])
+      end
+    end
+
+    input_path = DUMMY_ROOT_PATH.join("2015", ".day6.input.txt")
     refute File.exist?(input_path)
     assert_match(/Something went wrong/, err.strip)
+  ensure
+    Advent.session.clear
   end
 end
