@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "cgi/cookie"
+require "fileutils"
 require "net/http"
 require "uri"
 
@@ -24,7 +25,8 @@ module Advent
       response = http.get_response(input_url, {"Cookie" => session_cookie.to_s})
 
       if success?(response)
-        File.write(file_path, response.body)
+        FileUtils.mkdir_p file_path.dirname
+        File.write file_path, response.body
         true
       else
         false
