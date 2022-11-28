@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "advent/configuration"
 require_relative "advent/input"
 require_relative "advent/session"
 require_relative "advent/solution"
