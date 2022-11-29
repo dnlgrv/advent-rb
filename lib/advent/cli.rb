@@ -9,13 +9,12 @@ module Advent
   class CLI < Thor
     include Thor::Actions
 
-    class_option :root_path, default: Dir.pwd, hide: true, check_default_type: false
     class_option :http_module, default: Net::HTTP, check_default_type: false
 
     def initialize(*args)
       super
 
-      self.destination_root = root_path
+      self.destination_root = Advent.root
       source_paths << File.expand_path("templates", __dir__)
     end
 
@@ -91,7 +90,11 @@ module Advent
     # Runs a solution file, outputting both :part1 and :part2 method return values.
     def solve(path)
       require "advent/cli/solver"
-      Solver.new(self, root_path.join(path)).solve
+      file_path = Pathname.getwd.join(path)
+
+      Dir.chdir Advent.root do
+        Solver.new(self, file_path.relative_path_from(Advent.root)).solve
+      end
     end
 
     desc "version", "Prints the current version of the gem"
@@ -107,14 +110,6 @@ module Advent
         [root_path.basename.to_s, parse_number(year_or_day)]
       else
         [year_or_day, parse_number(day)]
-      end
-    end
-
-    def root_path
-      @_root_path ||= if options.root_path.is_a?(Pathname)
-        options.root_path
-      else
-        Pathname.new(options.root_path)
       end
     end
 

@@ -26,8 +26,12 @@ class Advent::CLITest < Advent::TestCase
       "day 5 input"
     )
 
-    @cli = Advent::CLI.new([], root_path: DUMMY_ROOT_PATH, http_module: http_mock)
-    @year_cli = Advent::CLI.new([], root_path: DUMMY_ROOT_PATH.join("2015"))
+    Dir.chdir DUMMY_ROOT_PATH
+    @cli = Advent::CLI.new([], http_module: http_mock)
+  end
+
+  def teardown
+    Dir.chdir DUMMY_ROOT_PATH
   end
 
   def test_version
@@ -38,7 +42,7 @@ class Advent::CLITest < Advent::TestCase
     assert_equal Advent::VERSION, out.strip
   end
 
-  def test_solve_from_parent_directory
+  def test_solve_from_root_directory
     out, _err = capture_io do
       @cli.invoke(:solve, ["2015/day1.rb"])
     end
@@ -48,7 +52,9 @@ class Advent::CLITest < Advent::TestCase
 
   def test_solve_from_year_directory
     out, _err = capture_io do
-      @year_cli.invoke(:solve, ["day2.rb"])
+      Dir.chdir DUMMY_ROOT_PATH.join("2015") do
+        @cli.invoke(:solve, ["day2.rb"])
+      end
     end
 
     assert_equal "Part 1: 789\nPart 2: Missing", out.strip
