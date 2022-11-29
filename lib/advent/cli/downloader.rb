@@ -20,7 +20,7 @@ class Advent::CLI::Downloader
   end
 
   private
-  
+
   def ask_for_session_cookie_if_needed
     return if Advent.session.exist?
 
