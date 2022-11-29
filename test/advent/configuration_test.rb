@@ -7,8 +7,8 @@ class Advent::ConfigurationTest < Advent::TestCase
     @config_file = DUMMY_ROOT_PATH.join("advent.yml")
   end
 
-  def test_initializing_with_defaults
-    config = Advent::Configuration.new
+  def test_config_is_merged_with_defaults
+    config = Advent::Configuration.new({})
 
     assert config.download_when_generating
     assert config.remember_session

@@ -16,7 +16,9 @@ module Advent
       end
     end
 
-    def initialize(config = DEFAULTS)
+    def initialize(conf)
+      config = DEFAULTS.merge(conf || {})
+
       @download_when_generating = config.dig("download_when_generating")
       @remember_session = config.dig("remember_session")
     end
