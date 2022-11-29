@@ -32,6 +32,7 @@ class Advent::CLITest < Advent::TestCase
 
   def teardown
     Dir.chdir DUMMY_ROOT_PATH
+    Advent.session.clear
   end
 
   def test_version
@@ -131,9 +132,9 @@ class Advent::CLITest < Advent::TestCase
     assert_equal "Day must be between 1 and 25 (inclusive).", err.strip
   end
 
-  def test_download_input
+  def test_download_from_root_directory
     out, _err = capture_io do
-      with_stdin_input(@session) do
+      with_session(@session) do
         @cli.invoke(:download, ["2015", "3"])
       end
     end
@@ -143,10 +144,10 @@ class Advent::CLITest < Advent::TestCase
     assert_equal "day 3 input", File.read(input_path)
     assert_match(/Input downloaded to #{input_path}/, out.strip)
   ensure
-    File.delete input_path
+    File.delete input_path if File.exist? input_path
   end
 
-  def test_download_persists_session_cookie
+  def test_persisting_session_cookie
     with_stdin_input(@session) do
       capture_io do
         @cli.invoke(:download, ["2015", "4"])
@@ -155,11 +156,11 @@ class Advent::CLITest < Advent::TestCase
 
     assert_equal @session, Advent.session.value
   ensure
-    File.delete DUMMY_ROOT_PATH.join("2015", ".day4.input.txt")
-    Advent.session.clear
+    input = DUMMY_ROOT_PATH.join("2015", ".day4.input.txt")
+    File.delete input if File.exist? input
   end
 
-  def test_download_skips_asking_for_session_cookie
+  def test_not_asking_for_session_cookie
     Advent.session.value = @session
 
     out, _err = capture_io do
@@ -170,22 +171,20 @@ class Advent::CLITest < Advent::TestCase
 
     refute_match(/session cookie value/, out)
   ensure
-    File.delete DUMMY_ROOT_PATH.join("2015", ".day5.input.txt")
-    Advent.session.clear
+    input = DUMMY_ROOT_PATH.join("2015", ".day5.input.txt")
+    File.delete input if File.exist? input
   end
 
-  def test_download_input_failure
+  def test_download_error
     _out, err = capture_io do
-      with_stdin_input("invalid") do
+      with_session("invalid") do
         @cli.invoke(:download, ["2015", "6"])
       end
     end
 
-    input_path = DUMMY_ROOT_PATH.join("2015", ".day6.input.txt")
-    refute File.exist?(input_path)
     assert_match(/Something went wrong/, err.strip)
   ensure
-    File.delete input_path if File.exist? input_path
-    Advent.session.clear
+    input = DUMMY_ROOT_PATH.join("2015", ".day6.input.txt")
+    File.delete input_path if File.exist? input
   end
 end

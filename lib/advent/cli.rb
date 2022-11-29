@@ -33,34 +33,11 @@ module Advent
     end
 
     desc "download YEAR DAY", "Download the input for YEAR and DAY"
-    def download(year_or_day, day = nil)
-      year, day = determine_year_and_day(year_or_day, day)
+    def download(year, day)
+      require "advent/cli/downloader"
 
-      if (error_message = validate(year, day))
-        say_error error_message, :red
-        return
-      end
-
-      subpath = if in_year_directory?
-        ""
-      else
-        "#{year}/"
-      end
-
-      unless Advent.session.exist?
-        session = ask "What is your Advent of Code session cookie value?", echo: false
-        Advent.session.value = session
-
-        say "\n\nThanks. Psst, we're going to save this for next time. It's in .advent_session if you need to update or delete it.\n\n"
-      end
-
-      input = Advent::Input.new(root_path.join(subpath), day: day.to_i)
-
-      if input.download(Advent.session.value, options.http_module)
-        say "Input downloaded to #{input.file_path}.", :green
-        say "\nUsing #load_input in your daily solution will load the input file for you."
-      else
-        say_error "Something went wrong, maybe an old session cookie?", :red
+      Dir.chdir Advent.root do
+        Downloader.new(self, year, day).download
       end
     end
 
