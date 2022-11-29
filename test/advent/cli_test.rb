@@ -147,7 +147,7 @@ class Advent::CLITest < Advent::TestCase
     File.delete input if File.exist? input
   end
 
-  def test_not_asking_for_session_cookie
+  def test_not_asking_for_session_cookie_again
     Advent.session.value = @session
 
     out, _err = capture_io do

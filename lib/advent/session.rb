@@ -18,11 +18,22 @@ module Advent
     end
 
     def value=(val)
-      File.write file_name, val
+      if save_to_disk?
+        File.write file_name, val
+      else
+        @_value = val
+      end
     end
 
     def value
-      File.read file_name if exist?
+      return @_value unless save_to_disk?
+      return File.read(file_name) if exist?
+    end
+
+    private
+
+    def save_to_disk?
+      Advent.config.remember_session
     end
   end
 end
