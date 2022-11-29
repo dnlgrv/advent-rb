@@ -12,7 +12,11 @@ module Advent
 
     class << self
       def from_file(file = FILE_NAME)
-        new Psych.safe_load_file(file)
+        if RUBY_VERSION >= "3.1"
+          new Psych.safe_load_file(file)
+        else
+          new Psych.safe_load(File.read(file))
+        end
       end
     end
 

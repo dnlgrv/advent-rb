@@ -18,7 +18,7 @@ class Advent::CLI::Solver
       load @path, Solutions
       solution = Solutions.const_get(solution_class_name).new
     else
-      require @path
+      require @path.expand_path
       solution = Object.const_get(solution_class_name).new
     end
 
