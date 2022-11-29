@@ -9,14 +9,17 @@ module Advent
   class CLI < Thor
     include Thor::Actions
 
-    class_option :root_path, default: Dir.pwd, hide: true, check_default_type: false
     class_option :http_module, default: Net::HTTP, check_default_type: false
 
     def initialize(*args)
       super
 
-      self.destination_root = root_path
       source_paths << File.expand_path("templates", __dir__)
+
+      # Don't try to load Advent.root if we're running init
+      unless args.last[:current_command]&.name == "init"
+        self.destination_root = Advent.root
+      end
     end
 
     # @return [Boolean] defines whether an exit status is set if a command fails
@@ -24,44 +27,12 @@ module Advent
       true
     end
 
-    no_commands do
-      # @return [Boolean] whether the current root_path option is in a
-      # directory that looks like a year (eg. 2015)
-      def in_year_directory?
-        dir = root_path.basename.to_s
-        dir =~ /^20[0-9]{2}/
-      end
-    end
-
     desc "download YEAR DAY", "Download the input for YEAR and DAY"
-    def download(year_or_day, day = nil)
-      year, day = determine_year_and_day(year_or_day, day)
+    def download(year, day)
+      require "advent/cli/downloader"
 
-      if (error_message = validate(year, day))
-        say_error error_message, :red
-        return
-      end
-
-      subpath = if in_year_directory?
-        ""
-      else
-        "#{year}/"
-      end
-
-      unless Advent.session.exist?
-        session = ask "What is your Advent of Code session cookie value?", echo: false
-        Advent.session.value = session
-
-        say "\n\nThanks. Psst, we're going to save this for next time. It's in .advent_session if you need to update or delete it.\n\n"
-      end
-
-      input = Advent::Input.new(root_path.join(subpath), day: day.to_i)
-
-      if input.download(Advent.session.value, options.http_module)
-        say "Input downloaded to #{input.file_path}.", :green
-        say "\nUsing #load_input in your daily solution will load the input file for you."
-      else
-        say_error "Something went wrong, maybe an old session cookie?", :red
+      Dir.chdir Advent.root do
+        Downloader.new(self, year, day).download
       end
     end
 
@@ -69,29 +40,37 @@ module Advent
     # Generates a new solution file. If within a year directory, only the day
     # is used, otherwise both the year and day will be required to generate the
     # output.
-    def generate(year_or_day, day = nil)
-      year, day = determine_year_and_day(year_or_day, day)
+    def generate(year, day)
+      year = parse_number year
+      day = parse_number day
 
-      if (error_message = validate(year, day))
-        say_error error_message, :red
+      if (message = validate(year, day))
+        say_error message, :red
         return
       end
 
-      subpath = if in_year_directory?
-        ""
-      else
-        "#{year}/"
-      end
+      template "solution.rb.tt", "#{year}/day#{day}.rb", context: binding
+      template "solution_test.rb.tt", "#{year}/test/day#{day}_test.rb", context: binding
 
-      template "solution.rb.tt", "#{subpath}day#{day}.rb", context: binding
-      template "solution_test.rb.tt", "#{subpath}test/day#{day}_test.rb", context: binding
+      download year, day if Advent.config.download_when_generating
+    end
+
+    desc "init DIR", "Initialise a new advent project in DIR"
+    def init(dir = ".")
+      create_file Pathname.getwd.join(dir).join(Advent::Configuration::FILE_NAME) do
+        ""
+      end
     end
 
     desc "solve FILE", "Solve your solution"
     # Runs a solution file, outputting both :part1 and :part2 method return values.
     def solve(path)
       require "advent/cli/solver"
-      Solver.new(self, root_path.join(path)).solve
+      file_path = Pathname.getwd.join(path)
+
+      Dir.chdir Advent.root do
+        Solver.new(self, file_path.relative_path_from(Advent.root)).solve
+      end
     end
 
     desc "version", "Prints the current version of the gem"
@@ -101,22 +80,6 @@ module Advent
     end
 
     private
-
-    def determine_year_and_day(year_or_day, day)
-      if in_year_directory?
-        [root_path.basename.to_s, parse_number(year_or_day)]
-      else
-        [year_or_day, parse_number(day)]
-      end
-    end
-
-    def root_path
-      @_root_path ||= if options.root_path.is_a?(Pathname)
-        options.root_path
-      else
-        Pathname.new(options.root_path)
-      end
-    end
 
     def parse_number(str)
       if (m = str.match(/[0-9]+/))

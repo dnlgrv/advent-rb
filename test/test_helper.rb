@@ -8,6 +8,24 @@ require "minitest/autorun"
 DUMMY_ROOT_PATH = Pathname.new File.expand_path("dummy", __dir__)
 
 class Advent::TestCase < Minitest::Test
+  def with_config(config)
+    original_config = Advent.config
+
+    config_with_defaults = Advent::Configuration::DEFAULTS.merge(config)
+    Advent.instance_variable_set(:@_config, Advent::Configuration.new(config_with_defaults))
+
+    yield
+  ensure
+    Advent.instance_variable_set(:@_config, original_config)
+  end
+
+  def with_session(value)
+    Advent.session.value = value
+    yield
+  ensure
+    Advent.session.clear
+  end
+
   def with_stdin_input(input)
     require "stringio"
 

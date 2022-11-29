@@ -19,4 +19,12 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "thor", "~> 1.2"
+
+  spec.post_install_message = "
+advent v0.1.5 requires a config file in your working directory.
+
+See #{spec.homepage}/blob/main/README.md#usage or if you're
+brave run `advent init` in your current directory.
+
+"
 end

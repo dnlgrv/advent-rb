@@ -16,15 +16,26 @@ If bundler is not being used to manage dependencies, install the gem by executin
 
 ## Usage
 
+Initialise a new project somewhere:
+
+```bash
+mkdir advent_of_code && cd advent_of_code
+
+# create a blank advent.yml config file
+advent init
+```
+
+Configuration values and format are explained in the [Config](#config) section.
+
 Advent expects you to have a working directory resembling something like:
 
     $ tree
     .
     ├── 2015
-    └── 2016
+    ├── 2016
+    └── advent.yml
 
-Some commands can be run from within a directory for a specific year, but it's
-better to run from the parent directory where possible.
+You can run commands from anywhere under this directory.
 
 The typical flow for tackling a daily challenge would be:
 
@@ -39,6 +50,32 @@ The typical flow for tackling a daily challenge would be:
 A list of commands and help is available using `advent`:
 
     $ advent help
+
+## Config
+
+The config file should be at the root of your working directory called
+`advent.yml`. The default values if you don't provide an override are:
+
+```yaml
+download_when_generating: true
+remember_session: true
+```
+
+### Config explained
+
+<dl>
+<dt>download_when_generating</dt>
+<dd>
+When you run `advent generate` it will automatically download the input file to
+go with it
+</dd>
+
+<dt>remember_session</dt>
+<dd>
+Save your session cookie in `.advent_session` when prompted so you don't need to
+find it again
+</dd>
+</dl>
 
 ## Development
 

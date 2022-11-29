@@ -18,7 +18,7 @@ class Advent::CLI::Solver
       load @path, Solutions
       solution = Solutions.const_get(solution_class_name).new
     else
-      require @path
+      require @path.expand_path
       solution = Object.const_get(solution_class_name).new
     end
 
@@ -37,15 +37,11 @@ class Advent::CLI::Solver
 
   private
 
-  def day
-    @_day ||= @path.basename.to_s.match(/day([0-9]+)\.rb/)[1]
-  end
-
-  def solution_file_name
-    "day#{day}.rb"
-  end
-
   def solution_class_name
     "Day#{day}"
+  end
+
+  def day
+    @_day ||= @path.basename.to_s.match(/day([0-9]+)\.rb/)[1]
   end
 end
