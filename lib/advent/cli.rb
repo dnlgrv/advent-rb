@@ -51,6 +51,13 @@ module Advent
       download year, day if Advent.config.download_when_generating
     end
 
+    desc "init DIR", "Initialise a new advent project in DIR"
+    def init(dir = ".")
+      create_file Pathname.getwd.join(dir).join(Advent::Configuration::FILE_NAME) do
+        ""
+      end
+    end
+
     desc "solve FILE", "Solve your solution"
     # Runs a solution file, outputting both :part1 and :part2 method return values.
     def solve(path)

@@ -35,6 +35,22 @@ class Advent::CLITest < Advent::TestCase
     Advent.session.clear
   end
 
+  def test_init
+    path = DUMMY_ROOT_PATH.join("init")
+    Dir.mkdir path
+
+    out, _err = capture_io do
+      Dir.chdir path do
+        @cli.invoke(:init)
+      end
+    end
+
+    assert_match(/create.*advent.yml/, out.strip)
+  ensure
+    File.delete path.join("advent.yml")
+    Dir.rmdir path
+  end
+
   def test_version
     out, _err = capture_io do
       @cli.invoke(:version)
@@ -85,7 +101,7 @@ class Advent::CLITest < Advent::TestCase
 
     assert File.exist? DUMMY_ROOT_PATH.join("2015", "day3.rb")
     assert File.exist? DUMMY_ROOT_PATH.join("2015", ".day3.input.txt")
-    
+
     File.delete DUMMY_ROOT_PATH.join("2015", "day3.rb")
     File.delete DUMMY_ROOT_PATH.join("2015", "test", "day3_test.rb")
     File.delete DUMMY_ROOT_PATH.join("2015", ".day3.input.txt")
