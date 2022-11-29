@@ -47,6 +47,8 @@ module Advent
 
       template "solution.rb.tt", "#{year}/day#{day}.rb", context: binding
       template "solution_test.rb.tt", "#{year}/test/day#{day}_test.rb", context: binding
+
+      download year, day if Advent.config.download_when_generating
     end
 
     desc "solve FILE", "Solve your solution"

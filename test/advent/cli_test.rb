@@ -74,6 +74,23 @@ class Advent::CLITest < Advent::TestCase
     end
   end
 
+  def test_download_when_generating
+    with_session("abc123") do
+      with_config({"download_when_generating" => true}) do
+        capture_io do
+          @cli.invoke(:generate, ["2015", "3"])
+        end
+      end
+    end
+
+    assert File.exist? DUMMY_ROOT_PATH.join("2015", "day3.rb")
+    assert File.exist? DUMMY_ROOT_PATH.join("2015", ".day3.input.txt")
+    
+    File.delete DUMMY_ROOT_PATH.join("2015", "day3.rb")
+    File.delete DUMMY_ROOT_PATH.join("2015", "test", "day3_test.rb")
+    File.delete DUMMY_ROOT_PATH.join("2015", ".day3.input.txt")
+  end
+
   def test_generate_day_parsing
     capture_io do
       @cli.invoke(:generate, ["2015", "day3"])
