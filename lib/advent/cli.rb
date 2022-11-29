@@ -14,8 +14,12 @@ module Advent
     def initialize(*args)
       super
 
-      self.destination_root = Advent.root
       source_paths << File.expand_path("templates", __dir__)
+
+      # Don't try to load Advent.root if we're running init
+      unless args.last[:current_command]&.name == "init"
+        self.destination_root = Advent.root
+      end
     end
 
     # @return [Boolean] defines whether an exit status is set if a command fails

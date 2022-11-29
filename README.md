@@ -16,13 +16,13 @@ If bundler is not being used to manage dependencies, install the gem by executin
 
 ## Usage
 
-Create a config file that defines the root of your Advent of Code solutions:
+Initialise a new project somewhere:
 
-```
-mkdir /where/i/store/projects/advent_of_code
-cd advent_of_code
+```bash
+mkdir advent_of_code && cd advent_of_code
 
-touch advent.yml
+# create a blank advent.yml config file
+advent init
 ```
 
 Configuration values and format are explained in the [Config](#config) section.
