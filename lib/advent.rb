@@ -11,6 +11,10 @@ module Advent
   class Error < StandardError; end
 
   class << self
+    def config
+      @_config ||= Configuration.from_file(root.join(Configuration::FILE_NAME))
+    end
+
     def root
       if (location = find_config_location)
         location
@@ -20,7 +24,7 @@ module Advent
     end
 
     def session
-      @_session = Session.new
+      @_session ||= Session.new
     end
 
     private

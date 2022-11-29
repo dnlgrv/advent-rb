@@ -25,6 +25,12 @@ class TestAdvent < Advent::TestCase
     end
   end
 
+  def test_config_initialization
+    Dir.chdir DUMMY_ROOT_PATH do
+      assert_kind_of Advent::Configuration, Advent.config
+    end
+  end
+
   def test_that_it_has_a_version_number
     refute_nil ::Advent::VERSION
   end

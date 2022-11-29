@@ -18,6 +18,6 @@ class Advent::ConfigurationTest < Advent::TestCase
     config = Advent::Configuration.from_file(@config_file)
 
     refute config.download_when_generating
-    refute config.remember_session
+    assert config.remember_session
   end
 end
