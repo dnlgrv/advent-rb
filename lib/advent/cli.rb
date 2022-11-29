@@ -23,15 +23,6 @@ module Advent
       true
     end
 
-    no_commands do
-      # @return [Boolean] whether the current root_path option is in a
-      # directory that looks like a year (eg. 2015)
-      def in_year_directory?
-        dir = root_path.basename.to_s
-        dir =~ /^20[0-9]{2}/
-      end
-    end
-
     desc "download YEAR DAY", "Download the input for YEAR and DAY"
     def download(year, day)
       require "advent/cli/downloader"
@@ -45,22 +36,17 @@ module Advent
     # Generates a new solution file. If within a year directory, only the day
     # is used, otherwise both the year and day will be required to generate the
     # output.
-    def generate(year_or_day, day = nil)
-      year, day = determine_year_and_day(year_or_day, day)
+    def generate(year, day)
+      year = parse_number year
+      day = parse_number day
 
-      if (error_message = validate(year, day))
-        say_error error_message, :red
+      if (message = validate(year, day))
+        say_error message, :red
         return
       end
 
-      subpath = if in_year_directory?
-        ""
-      else
-        "#{year}/"
-      end
-
-      template "solution.rb.tt", "#{subpath}day#{day}.rb", context: binding
-      template "solution_test.rb.tt", "#{subpath}test/day#{day}_test.rb", context: binding
+      template "solution.rb.tt", "#{year}/day#{day}.rb", context: binding
+      template "solution_test.rb.tt", "#{year}/test/day#{day}_test.rb", context: binding
     end
 
     desc "solve FILE", "Solve your solution"
@@ -81,14 +67,6 @@ module Advent
     end
 
     private
-
-    def determine_year_and_day(year_or_day, day)
-      if in_year_directory?
-        [root_path.basename.to_s, parse_number(year_or_day)]
-      else
-        [year_or_day, parse_number(day)]
-      end
-    end
 
     def parse_number(str)
       if (m = str.match(/[0-9]+/))
