@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    advent (0.1.4)
+    advent (0.1.6)
       thor (~> 1.2)
 
 GEM
