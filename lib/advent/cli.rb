@@ -8,6 +8,7 @@ require "thor"
 module Advent
   class CLI < Thor
     include Thor::Actions
+    EXCLUDED_ROOT_COMMANDS = %w[help init version]
 
     class_option :http_module, default: Net::HTTP, check_default_type: false
 
@@ -16,8 +17,8 @@ module Advent
 
       source_paths << File.expand_path("templates", __dir__)
 
-      # Don't try to load Advent.root if we're running init
-      unless args.last[:current_command]&.name == "init"
+      # Don't try to load Advent.root if we're a command that doesn't need it
+      unless EXCLUDED_ROOT_COMMANDS.include? args.last[:current_command]&.name
         self.destination_root = Advent.root
       end
     end
