@@ -59,7 +59,6 @@ module Advent
     desc "solve FILE", "Solve your solution"
     # Runs a solution file, outputting both :part1 and :part2 method return values.
     def solve(path)
-      require "advent/cli/solver"
       file_path = Pathname.getwd.join(path)
 
       Dir.chdir Advent.root do
