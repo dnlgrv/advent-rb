@@ -1,6 +1,5 @@
 require "cgi/cookie"
 require "fileutils"
-require "net/http"
 require "uri"
 
 module Advent
@@ -18,23 +17,15 @@ module Advent
       File.exist? file_path
     end
 
-    def download(session, http = Net::HTTP)
+    def download(session, command)
       session_cookie = CGI::Cookie.new("session", session)
-      response = http.get_response(input_url, {"Cookie" => session_cookie.to_s})
-
-      if success?(response)
-        FileUtils.mkdir_p file_path.dirname
-        File.write file_path, response.body
-        true
-      else
-        false
-      end
+      command.get input_url, file_path, http_headers: {"Cookie" => session_cookie.to_s}
     end
 
     private
 
     def input_url
-      URI("https://adventofcode.com/#{year}/day/#{@day}/input")
+      "https://adventofcode.com/#{year}/day/#{@day}/input"
     end
 
     def year

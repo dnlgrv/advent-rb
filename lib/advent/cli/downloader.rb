@@ -9,7 +9,7 @@ class Advent::Cli::Downloader
     ask_for_session_cookie_if_needed
     input = Advent::Input.new(Advent.root.join(@year), day: @day.to_i)
 
-    if input.download(Advent.session.value, @command.options.http_module)
+    if input.download(Advent.session.value, @command)
       @command.say "Input downloaded to #{input.file_path}.", :green
       @command.say "\nUsing #load_input in your daily solution will load the input file for you."
     else

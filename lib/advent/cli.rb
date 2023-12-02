@@ -1,5 +1,4 @@
 require "date"
-require "net/http"
 require "pathname"
 require "thor"
 
@@ -7,8 +6,6 @@ module Advent
   class Cli < Thor
     include Thor::Actions
     EXCLUDED_ROOT_COMMANDS = %w[help init version]
-
-    class_option :http_module, default: Net::HTTP, check_default_type: false
 
     def initialize(*args)
       super
@@ -28,8 +25,6 @@ module Advent
 
     desc "download YEAR DAY", "Download the input for YEAR and DAY"
     def download(year, day)
-      require "advent/cli/downloader"
-
       Dir.chdir Advent.root do
         Downloader.new(self, year, day).download
       end
