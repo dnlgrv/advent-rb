@@ -1,4 +1,4 @@
-class Day1
+class Day1 < Advent::Solution
   def part_1
     123
   end

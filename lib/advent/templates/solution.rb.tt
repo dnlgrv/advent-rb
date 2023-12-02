@@ -1,9 +1,9 @@
 require "advent"
 
 class Day<%= day %> < Advent::Solution
-  def part1(input: load_input)
+  def part_1(input: input_text)
   end
 
-  def part2(input: load_input)
+  def part_2(input: input_text)
   end
 end
