@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 class Day1 < Advent::Solution
   def part1
     123
