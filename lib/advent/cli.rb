@@ -8,6 +8,14 @@ module Advent
       true
     end
 
+    desc "auth", "remember your session for downloading inputs"
+    option :session, aliases: "-s", type: :string, default: nil, desc: "Provide the value directly without being prompted"
+    def auth
+      session = options[:session] || ask("What is your Advent of Code session value?", echo: false)
+      say ""
+      create_file ".advent_session", session
+    end
+
     desc "new YEAR DAY", "start a new solution"
     def new(year, day)
       self.class.source_root __dir__

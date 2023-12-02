@@ -1,6 +1,17 @@
 require "test_helper"
 
 class Advent::CliTest < ActiveSupport::TestCase
+  test "auth with session" do
+    run_command("auth", "-s", "value").tap do |output|
+      refute_match "What is your Advent of Code session value?", output
+      
+      assert_match /create.*\.advent_session/, output
+      assert_equal "value", File.read(".advent_session")
+    end
+  ensure
+    File.delete ".advent_session" if File.exist? ".advent_session"
+  end
+
   test "solving with answers" do
     run_command("solve", "test/fixtures/day1.rb").tap do |output|
       assert_match %r{Part 1.*123}, output
