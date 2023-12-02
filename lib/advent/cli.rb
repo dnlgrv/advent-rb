@@ -55,14 +55,16 @@ module Advent
     def solve(path)
       load path
 
+      require "active_support/core_ext/object/blank"
+      require "active_support/core_ext/string/inflections"
       require "pathname"
       klass = Pathname.new(path).basename(".rb").to_s.classify.constantize
 
       part_1 = klass.new.part_1
       part_2 = klass.new.part_2
 
-      say "Part 1: #{part_1}"
-      say "Part 2: #{part_2}"
+      say_status "Part 1", part_1.presence || "No answer", part_1.present? ? :green : :red
+      say_status "Part 2", part_2.presence || "No answer", part_2.present? ? :green : :red
     end
 
     desc "version", "current gem version"
