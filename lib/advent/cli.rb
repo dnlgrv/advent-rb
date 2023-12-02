@@ -4,52 +4,17 @@ module Advent
   class Cli < Thor
     include Thor::Actions
 
-    # EXCLUDED_ROOT_COMMANDS = %w[help init version]
-
-    # def initialize(*args)
-    #   super
-
-      # source_paths << File.expand_path("templates", __dir__)
-
-      # # Don't try to load Advent.root if we're a command that doesn't need it
-      # unless EXCLUDED_ROOT_COMMANDS.include? args.last[:current_command]&.name
-      #   self.destination_root = Advent.root
-      # end
-    # end
-
     def self.exit_on_failure?
       true
     end
 
-    # desc "download YEAR DAY", "Download the input for YEAR and DAY"
-    # def download(year, day)
-    #   Dir.chdir Advent.root do
-    #     Downloader.new(self, year, day).download
-    #   end
-    # end
+    desc "new YEAR DAY", "start a new solution"
+    def new(year, day)
+      self.class.source_root __dir__
 
-    # desc "generate YEAR DAY", "Generate a new solution for YEAR and DAY"
-    # def generate(year, day)
-    #   year = parse_number year
-    #   day = parse_number day
-
-    #   if (message = validate(year, day))
-    #     say_error message, :red
-    #     return
-    #   end
-
-    #   template "solution.rb.tt", "#{year}/day#{day}.rb", context: binding
-    #   template "solution_test.rb.tt", "#{year}/test/day#{day}_test.rb", context: binding
-
-    #   download year, day if Advent.config.download_when_generating
-    # end
-
-    # desc "init DIR", "Initialise a new advent project in DIR"
-    # def init(dir = ".")
-    #   create_file Pathname.getwd.join(dir).join(Advent::Configuration::FILE_NAME) do
-    #     ""
-    #   end
-    # end
+      template "templates/solution.rb.tt", "#{year}/day#{day}.rb", context: binding
+      template "templates/solution_test.rb.tt", "test/#{year}/day#{day}_test.rb", context: binding
+    end
 
     desc "solve FILE", "solve your solution"
     def solve(path)
