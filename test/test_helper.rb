@@ -1,6 +1,8 @@
 require "bundler/setup"
 require "active_support/testing/autorun"
 require "active_support/testing/stream"
+require "mocha/minitest"
+require "minitest/autorun"
 require "debug"
 
 require "advent"
