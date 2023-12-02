@@ -1,210 +1,61 @@
-# frozen_string_literal: true
-
 require "test_helper"
 
-require "advent/cli"
-require "date"
-
-class Advent::CLITest < Advent::TestCase
-  def setup
-    @session = "abc123"
-
-    http_mock = MockHTTP.new
-    http_mock.add_response(
-      "https://adventofcode.com/2015/day/3/input",
-      "session=#{@session}; path=",
-      "day 3 input"
-    )
-    http_mock.add_response(
-      "https://adventofcode.com/2015/day/4/input",
-      "session=#{@session}; path=",
-      "day 4 input"
-    )
-    http_mock.add_response(
-      "https://adventofcode.com/2015/day/5/input",
-      "session=#{@session}; path=",
-      "day 5 input"
-    )
-
-    Dir.chdir DUMMY_ROOT_PATH
-    @cli = Advent::CLI.new([], http_module: http_mock)
-  end
-
-  def teardown
-    Dir.chdir DUMMY_ROOT_PATH
-    Advent.session.clear
-  end
-
-  def test_init
-    path = DUMMY_ROOT_PATH.join("init")
-    Dir.mkdir path
-
-    out, _err = capture_io do
-      Dir.chdir path do
-        @cli.invoke(:init)
-      end
+class Advent::CliTest < ActiveSupport::TestCase
+  test "auth with session" do
+    run_command("auth", "-s", "value").tap do |output|
+      refute_match "What is your Advent of Code session value?", output
+      
+      assert_match /create.*\.advent_session/, output
+      assert_match /\.advent_session/, File.read(".gitignore")
+      assert_equal "value", File.read(".advent_session")
     end
-
-    assert_match(/create.*advent.yml/, out.strip)
   ensure
-    File.delete path.join("advent.yml")
-    Dir.rmdir path
+    gitignore = File.read(".gitignore")
+    without_session = gitignore.lines.select { _1 != ".advent_session" }
+    File.open(".gitignore", "w") { _1.puts without_session }
+    File.delete ".advent_session" if File.exist? ".advent_session"
   end
 
-  def test_version
-    out, _err = capture_io do
-      @cli.invoke(:version)
-    end
+  test "downloading input" do
+    File.open(".advent_session", "w") { _1.puts "session_value" }
+    CGI::Cookie.any_instance.stubs(:to_s).returns "session_cookie"
+    URI.expects(:open).with("https://adventofcode.com/2023/day/1/input", {"Cookie" => "session_cookie"}).returns "day 1 input"
 
-    assert_equal Advent::VERSION, out.strip
-  end
+    run_command("download", "2023", "1")
 
-  def test_solve_from_root_directory
-    out, _err = capture_io do
-      @cli.invoke(:solve, ["2015/day1.rb"])
-    end
-
-    assert_equal "Part 1: 123\nPart 2: 456", out.strip
-  end
-
-  def test_solve_from_year_directory
-    out, _err = capture_io do
-      Dir.chdir DUMMY_ROOT_PATH.join("2015") do
-        @cli.invoke(:solve, ["day2.rb"])
-      end
-    end
-
-    assert_equal "Part 1: 789\nPart 2: Missing", out.strip
-  end
-
-  def test_generate
-    capture_io do
-      @cli.invoke(:generate, ["2015", "3"])
-    end
-
-    ["day3.rb", "test/day3_test.rb"].each do |file_name|
-      expected_file_path = DUMMY_ROOT_PATH.join("2015", file_name)
-      assert File.exist? expected_file_path
-
-      File.delete expected_file_path
-    end
-  end
-
-  def test_download_when_generating
-    with_session("abc123") do
-      with_config({"download_when_generating" => true}) do
-        capture_io do
-          @cli.invoke(:generate, ["2015", "3"])
-        end
-      end
-    end
-
-    assert File.exist? DUMMY_ROOT_PATH.join("2015", "day3.rb")
-    assert File.exist? DUMMY_ROOT_PATH.join("2015", ".day3.input.txt")
-
-    File.delete DUMMY_ROOT_PATH.join("2015", "day3.rb")
-    File.delete DUMMY_ROOT_PATH.join("2015", "test", "day3_test.rb")
-    File.delete DUMMY_ROOT_PATH.join("2015", ".day3.input.txt")
-  end
-
-  def test_generate_day_parsing
-    capture_io do
-      @cli.invoke(:generate, ["2015", "day3"])
-    end
-
-    ["day3.rb", "test/day3_test.rb"].each do |file_name|
-      expected_file_path = DUMMY_ROOT_PATH.join("2015", file_name)
-      assert File.exist? expected_file_path
-
-      File.delete expected_file_path
-    end
-  end
-
-  def test_generate_valid_minimum_year
-    _out, err = capture_io do
-      @cli.invoke(:generate, ["2013", "1"])
-    end
-
-    assert_equal "Advent of Code only started in 2014!", err.strip
-  end
-
-  def test_generate_valid_maximum_year
-    _out, err = capture_io do
-      @cli.invoke(:generate, [(Date.today.year + 1).to_s, "1"])
-    end
-
-    assert_equal "Future years are not supported.", err.strip
-  end
-
-  def test_generate_valid_minimum_day
-    _out, err = capture_io do
-      @cli.invoke(:generate, ["2015", "0"])
-    end
-
-    assert_equal "Day must be between 1 and 25 (inclusive).", err.strip
-  end
-
-  def test_generate_valid_maximum_day
-    _out, err = capture_io do
-      @cli.invoke(:generate, ["2015", "26"])
-    end
-
-    assert_equal "Day must be between 1 and 25 (inclusive).", err.strip
-  end
-
-  def test_download_from_root_directory
-    out, _err = capture_io do
-      with_session(@session) do
-        @cli.invoke(:download, ["2015", "3"])
-      end
-    end
-
-    input_path = DUMMY_ROOT_PATH.join("2015", ".day3.input.txt")
-    assert File.exist?(input_path)
-    assert_equal "day 3 input", File.read(input_path)
-    assert_match(/Input downloaded to #{input_path}/, out.strip)
+    assert_equal "day 1 input", File.read("2023/.day1_input.txt")
   ensure
-    File.delete input_path if File.exist? input_path
+    File.delete ".advent_session" if File.exist? ".advent_session"
+    File.delete "2023/.day1_input.txt" if File.exist? "2023/.day1_input.txt"
   end
 
-  def test_persisting_session_cookie
-    with_stdin_input(@session) do
-      capture_io do
-        @cli.invoke(:download, ["2015", "4"])
-      end
+  test "solving with answers" do
+    run_command("solve", "test/fixtures/day1.rb").tap do |output|
+      assert_match %r{Part 1.*123}, output
+      assert_match %r{Part 2.*456}, output
     end
-
-    assert_equal @session, Advent.session.value
-  ensure
-    input = DUMMY_ROOT_PATH.join("2015", ".day4.input.txt")
-    File.delete input if File.exist? input
+  end
+  
+  test "solving without answers" do
+    run_command("solve", "test/fixtures/day2.rb").tap do |output|
+      assert_match %r{Part 1.*No answer}, output
+      assert_match %r{Part 2.*No answer}, output
+    end
   end
 
-  def test_not_asking_for_session_cookie_again
-    Advent.session.value = @session
+  test "starting a new day" do
+    run_command("new", "2023", "1")
 
-    out, _err = capture_io do
-      with_stdin_input("not needed") do
-        @cli.invoke(:download, ["2015", "5"])
-      end
-    end
-
-    refute_match(/session cookie value/, out)
+    assert_match "class Day1", File.read("2023/day1.rb")
+    assert_match "class Day1Test", File.read("test/2023/day1_test.rb")
   ensure
-    input = DUMMY_ROOT_PATH.join("2015", ".day5.input.txt")
-    File.delete input if File.exist? input
+    File.delete "2023/day1.rb" if File.exist? "2023/day1.rb"
+    File.delete "test/2023/day1_test.rb" if File.exist? "test/2023/day1_test.rb"
   end
 
-  def test_download_error
-    _out, err = capture_io do
-      with_session("invalid") do
-        @cli.invoke(:download, ["2015", "6"])
-      end
+  test "version" do
+    run_command("version").tap do |output|
+      assert_equal Advent::VERSION, output
     end
-
-    assert_match(/Something went wrong/, err.strip)
-  ensure
-    input = DUMMY_ROOT_PATH.join("2015", ".day6.input.txt")
-    File.delete input_path if File.exist? input
   end
 end

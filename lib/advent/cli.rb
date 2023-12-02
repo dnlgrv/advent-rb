@@ -1,101 +1,62 @@
-# frozen_string_literal: true
-
-require "advent"
-require "date"
-require "pathname"
 require "thor"
 
-module Advent
-  class CLI < Thor
-    include Thor::Actions
-    EXCLUDED_ROOT_COMMANDS = %w[help init version]
+class Advent::Cli < Thor
+  include Thor::Actions
 
-    class_option :http_module, default: Net::HTTP, check_default_type: false
-
-    def initialize(*args)
-      super
-
-      source_paths << File.expand_path("templates", __dir__)
-
-      # Don't try to load Advent.root if we're a command that doesn't need it
-      unless EXCLUDED_ROOT_COMMANDS.include? args.last[:current_command]&.name
-        self.destination_root = Advent.root
-      end
-    end
-
-    # @return [Boolean] defines whether an exit status is set if a command fails
-    def self.exit_on_failure?
-      true
-    end
-
-    desc "download YEAR DAY", "Download the input for YEAR and DAY"
-    def download(year, day)
-      require "advent/cli/downloader"
-
-      Dir.chdir Advent.root do
-        Downloader.new(self, year, day).download
-      end
-    end
-
-    desc "generate YEAR DAY", "Generate a new solution for YEAR and DAY"
-    # Generates a new solution file. If within a year directory, only the day
-    # is used, otherwise both the year and day will be required to generate the
-    # output.
-    def generate(year, day)
-      year = parse_number year
-      day = parse_number day
-
-      if (message = validate(year, day))
-        say_error message, :red
-        return
-      end
-
-      template "solution.rb.tt", "#{year}/day#{day}.rb", context: binding
-      template "solution_test.rb.tt", "#{year}/test/day#{day}_test.rb", context: binding
-
-      download year, day if Advent.config.download_when_generating
-    end
-
-    desc "init DIR", "Initialise a new advent project in DIR"
-    def init(dir = ".")
-      create_file Pathname.getwd.join(dir).join(Advent::Configuration::FILE_NAME) do
-        ""
-      end
-    end
-
-    desc "solve FILE", "Solve your solution"
-    # Runs a solution file, outputting both :part1 and :part2 method return values.
-    def solve(path)
-      require "advent/cli/solver"
-      file_path = Pathname.getwd.join(path)
-
-      Dir.chdir Advent.root do
-        Solver.new(self, file_path.relative_path_from(Advent.root)).solve
-      end
-    end
-
-    desc "version", "Prints the current version of the gem"
-    # Prints the current version of the gem
-    def version
-      say Advent::VERSION
-    end
-
-    private
-
-    def parse_number(str)
-      if (m = str.match(/[0-9]+/))
-        m[0]
-      end
-    end
-
-    def validate(year, day)
-      if year.to_i < 2014
-        "Advent of Code only started in 2014!"
-      elsif year.to_i > Date.today.year
-        "Future years are not supported."
-      elsif !(1..25).cover? day.to_i
-        "Day must be between 1 and 25 (inclusive)."
-      end
-    end
+  def self.exit_on_failure?
+    true
   end
+
+  desc "auth", "remember your session for downloading inputs"
+  option :session, aliases: "-s", type: :string, default: nil, desc: "Provide the value directly without being prompted"
+  def auth
+    session = options[:session] || ask("What is your Advent of Code session value?", echo: false)
+    say ""
+
+    create_file ".advent_session", session
+    append_to_file ".gitignore", ".advent_session" if File.exist? ".git"
+  end
+
+  desc "download YEAR DAY", "download input"
+  def download(year, day)
+    get "https://adventofcode.com/#{year}/day/#{day}/input", "#{year}/.day#{day}_input.txt", http_headers: http_headers
+  end
+
+  desc "new YEAR DAY", "start a new solution"
+  def new(year, day)
+    self.class.source_root __dir__
+
+    template "templates/solution.rb.tt", "#{year}/day#{day}.rb", context: binding
+    template "templates/solution_test.rb.tt", "test/#{year}/day#{day}_test.rb", context: binding
+  end
+
+  desc "solve FILE", "solve your solution"
+  def solve(path)
+    load path
+
+    require "active_support/core_ext/object/blank"
+    require "active_support/core_ext/string/inflections"
+    require "pathname"
+    klass = Pathname.new(path).basename(".rb").to_s.classify.constantize
+
+    part_1 = klass.new.part_1
+    part_2 = klass.new.part_2
+
+    say_status "Part 1", part_1.presence || "No answer", part_1.present? ? :green : :red
+    say_status "Part 2", part_2.presence || "No answer", part_2.present? ? :green : :red
+  end
+
+  desc "version", "current gem version"
+  def version
+    say Advent::VERSION
+  end
+
+  private
+    def http_headers
+      {"Cookie" => CGI::Cookie.new("session", session).to_s}
+    end
+
+    def session
+      File.read(".advent_session").chomp
+    end
 end

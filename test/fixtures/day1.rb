@@ -1,11 +1,9 @@
-# frozen_string_literal: true
-
 class Day1 < Advent::Solution
-  def part1
+  def part_1
     123
   end
 
-  def part2
+  def part_2
     456
   end
 end

@@ -1,6 +1,4 @@
 require "minitest"
 
-module Advent
-  class TestCase < Minitest::Test
-  end
+class Advent::TestCase < Minitest::Test
 end
