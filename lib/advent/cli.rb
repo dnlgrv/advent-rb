@@ -1,93 +1,73 @@
-require "date"
-require "pathname"
 require "thor"
 
 module Advent
   class Cli < Thor
     include Thor::Actions
-    EXCLUDED_ROOT_COMMANDS = %w[help init version]
 
-    def initialize(*args)
-      super
+    # EXCLUDED_ROOT_COMMANDS = %w[help init version]
 
-      source_paths << File.expand_path("templates", __dir__)
+    # def initialize(*args)
+    #   super
 
-      # Don't try to load Advent.root if we're a command that doesn't need it
-      unless EXCLUDED_ROOT_COMMANDS.include? args.last[:current_command]&.name
-        self.destination_root = Advent.root
-      end
-    end
+      # source_paths << File.expand_path("templates", __dir__)
 
-    # @return [Boolean] defines whether an exit status is set if a command fails
+      # # Don't try to load Advent.root if we're a command that doesn't need it
+      # unless EXCLUDED_ROOT_COMMANDS.include? args.last[:current_command]&.name
+      #   self.destination_root = Advent.root
+      # end
+    # end
+
     def self.exit_on_failure?
       true
     end
 
-    desc "download YEAR DAY", "Download the input for YEAR and DAY"
-    def download(year, day)
-      Dir.chdir Advent.root do
-        Downloader.new(self, year, day).download
-      end
-    end
+    # desc "download YEAR DAY", "Download the input for YEAR and DAY"
+    # def download(year, day)
+    #   Dir.chdir Advent.root do
+    #     Downloader.new(self, year, day).download
+    #   end
+    # end
 
-    desc "generate YEAR DAY", "Generate a new solution for YEAR and DAY"
-    # Generates a new solution file. If within a year directory, only the day
-    # is used, otherwise both the year and day will be required to generate the
-    # output.
-    def generate(year, day)
-      year = parse_number year
-      day = parse_number day
+    # desc "generate YEAR DAY", "Generate a new solution for YEAR and DAY"
+    # def generate(year, day)
+    #   year = parse_number year
+    #   day = parse_number day
 
-      if (message = validate(year, day))
-        say_error message, :red
-        return
-      end
+    #   if (message = validate(year, day))
+    #     say_error message, :red
+    #     return
+    #   end
 
-      template "solution.rb.tt", "#{year}/day#{day}.rb", context: binding
-      template "solution_test.rb.tt", "#{year}/test/day#{day}_test.rb", context: binding
+    #   template "solution.rb.tt", "#{year}/day#{day}.rb", context: binding
+    #   template "solution_test.rb.tt", "#{year}/test/day#{day}_test.rb", context: binding
 
-      download year, day if Advent.config.download_when_generating
-    end
+    #   download year, day if Advent.config.download_when_generating
+    # end
 
-    desc "init DIR", "Initialise a new advent project in DIR"
-    def init(dir = ".")
-      create_file Pathname.getwd.join(dir).join(Advent::Configuration::FILE_NAME) do
-        ""
-      end
-    end
+    # desc "init DIR", "Initialise a new advent project in DIR"
+    # def init(dir = ".")
+    #   create_file Pathname.getwd.join(dir).join(Advent::Configuration::FILE_NAME) do
+    #     ""
+    #   end
+    # end
 
-    desc "solve FILE", "Solve your solution"
-    # Runs a solution file, outputting both :part1 and :part2 method return values.
+    desc "solve FILE", "solve your solution"
     def solve(path)
-      file_path = Pathname.getwd.join(path)
+      load path
 
-      Dir.chdir Advent.root do
-        Solver.new(self, file_path.relative_path_from(Advent.root)).solve
-      end
+      require "pathname"
+      klass = Pathname.new(path).basename(".rb").to_s.classify.constantize
+
+      part_1 = klass.new.part_1
+      part_2 = klass.new.part_2
+
+      say "Part 1: #{part_1}"
+      say "Part 2: #{part_2}"
     end
 
-    desc "version", "Prints the current version of the gem"
-    # Prints the current version of the gem
+    desc "version", "current gem version"
     def version
       say Advent::VERSION
-    end
-
-    private
-
-    def parse_number(str)
-      if (m = str.match(/[0-9]+/))
-        m[0]
-      end
-    end
-
-    def validate(year, day)
-      if year.to_i < 2014
-        "Advent of Code only started in 2014!"
-      elsif year.to_i > Date.today.year
-        "Future years are not supported."
-      elsif !(1..25).cover? day.to_i
-        "Day must be between 1 and 25 (inclusive)."
-      end
     end
   end
 end

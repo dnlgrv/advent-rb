@@ -9,6 +9,10 @@ class ActiveSupport::TestCase
   include ActiveSupport::Testing::Stream
 
   private
+    def run_command(*command)
+      stdouted { Advent::Cli.start [*command] }
+    end
+
     def stdouted
       capture(:stdout) { yield }.strip
     end
