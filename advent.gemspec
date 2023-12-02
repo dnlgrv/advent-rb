@@ -11,6 +11,7 @@ Gem::Specification.new do |spec|
   spec.files       = Dir["lib/**/*", "LICENSE.txt", "README.md"]
   spec.executables = ["advent"]
 
+  spec.add_dependency "activesupport"
   spec.add_dependency "thor"
   spec.add_dependency "zeitwerk"
 
