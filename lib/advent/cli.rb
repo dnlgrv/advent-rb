@@ -18,6 +18,11 @@ module Advent
       append_to_file ".gitignore", ".advent_session" if File.exist? ".git"
     end
 
+    desc "download YEAR DAY", "download input"
+    def download(year, day)
+      get "https://adventofcode.com/#{year}/day/#{day}/input", "#{year}/.day#{day}_input.txt", http_headers:
+    end
+
     desc "new YEAR DAY", "start a new solution"
     def new(year, day)
       self.class.source_root __dir__
@@ -46,5 +51,14 @@ module Advent
     def version
       say Advent::VERSION
     end
+
+    private
+      def http_headers
+        {"Cookie" => CGI::Cookie.new("session", session).to_s}
+      end
+
+      def session
+        File.read(".advent_session").chomp
+      end
   end
 end

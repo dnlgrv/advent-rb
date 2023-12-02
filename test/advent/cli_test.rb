@@ -16,6 +16,19 @@ class Advent::CliTest < ActiveSupport::TestCase
     File.delete ".advent_session" if File.exist? ".advent_session"
   end
 
+  test "downloading input" do
+    File.open(".advent_session", "w") { _1.puts "session_value" }
+    CGI::Cookie.any_instance.stubs(:to_s).returns "session_cookie"
+    URI.expects(:open).with("https://adventofcode.com/2023/day/1/input", {"Cookie" => "session_cookie"}).returns "day 1 input"
+
+    run_command("download", "2023", "1")
+
+    assert_equal "day 1 input", File.read("2023/.day1_input.txt")
+  ensure
+    File.delete ".advent_session" if File.exist? ".advent_session"
+    File.delete "2023/.day1_input.txt" if File.exist? "2023/.day1_input.txt"
+  end
+
   test "solving with answers" do
     run_command("solve", "test/fixtures/day1.rb").tap do |output|
       assert_match %r{Part 1.*123}, output
