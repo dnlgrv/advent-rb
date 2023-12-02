@@ -1,11 +1,6 @@
-# frozen_string_literal: true
-
-require_relative "advent/configuration"
-require_relative "advent/input"
-require_relative "advent/session"
-require_relative "advent/solution"
-require_relative "advent/test_case"
-require_relative "advent/version"
+require "zeitwerk"
+loader = Zeitwerk::Loader.for_gem
+loader.setup
 
 module Advent
   class Error < StandardError; end
@@ -37,3 +32,5 @@ module Advent
     end
   end
 end
+
+loader.eager_load

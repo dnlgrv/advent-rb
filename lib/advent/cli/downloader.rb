@@ -1,6 +1,4 @@
-# frozen_string_literal: true
-
-class Advent::CLI::Downloader
+class Advent::Cli::Downloader
   def initialize(command, year, day)
     @command = command
     @year = year

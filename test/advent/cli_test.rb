@@ -5,7 +5,7 @@ require "test_helper"
 require "advent/cli"
 require "date"
 
-class Advent::CLITest < Advent::TestCase
+class Advent::CliTest < Advent::TestCase
   def setup
     @session = "abc123"
 
@@ -27,7 +27,7 @@ class Advent::CLITest < Advent::TestCase
     )
 
     Dir.chdir DUMMY_ROOT_PATH
-    @cli = Advent::CLI.new([], http_module: http_mock)
+    @cli = Advent::Cli.new([], http_module: http_mock)
   end
 
   def teardown

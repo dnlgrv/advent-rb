@@ -2,6 +2,6 @@
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
-require "advent/cli"
+require "advent"
 
-Advent::CLI.start
+Advent::Cli.start ARGV

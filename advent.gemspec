@@ -12,6 +12,7 @@ Gem::Specification.new do |spec|
   spec.executables = ["advent"]
 
   spec.add_dependency "thor"
+  spec.add_dependency "zeitwerk"
 
   spec.add_development_dependency "debug"
   spec.add_development_dependency "rake"

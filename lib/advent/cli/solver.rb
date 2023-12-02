@@ -1,6 +1,4 @@
-# frozen_string_literal: true
-
-class Advent::CLI::Solver
+class Advent::Cli::Solver
   PARTS = [1, 2]
 
   if RUBY_VERSION >= "3.1"

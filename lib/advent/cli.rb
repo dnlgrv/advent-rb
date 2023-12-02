@@ -1,12 +1,10 @@
-# frozen_string_literal: true
-
-require "advent"
 require "date"
+require "net/http"
 require "pathname"
 require "thor"
 
 module Advent
-  class CLI < Thor
+  class Cli < Thor
     include Thor::Actions
     EXCLUDED_ROOT_COMMANDS = %w[help init version]
 
