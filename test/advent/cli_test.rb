@@ -6,9 +6,13 @@ class Advent::CliTest < ActiveSupport::TestCase
       refute_match "What is your Advent of Code session value?", output
       
       assert_match /create.*\.advent_session/, output
+      assert_match /\.advent_session/, File.read(".gitignore")
       assert_equal "value", File.read(".advent_session")
     end
   ensure
+    gitignore = File.read(".gitignore")
+    without_session = gitignore.lines.select { _1 != ".advent_session" }
+    File.open(".gitignore", "w") { _1.puts without_session }
     File.delete ".advent_session" if File.exist? ".advent_session"
   end
 

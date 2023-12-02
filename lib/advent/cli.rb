@@ -13,7 +13,9 @@ module Advent
     def auth
       session = options[:session] || ask("What is your Advent of Code session value?", echo: false)
       say ""
+
       create_file ".advent_session", session
+      append_to_file ".gitignore", ".advent_session" if File.exist? ".git"
     end
 
     desc "new YEAR DAY", "start a new solution"
