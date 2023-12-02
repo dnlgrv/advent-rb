@@ -11,8 +11,9 @@ Gem::Specification.new do |spec|
   spec.files       = Dir["lib/**/*", "LICENSE.txt", "README.md"]
   spec.executables = ["advent"]
 
-  spec.add_dependency "thor", "~> 1.2"
-  spec.add_dependency "debug", "~> 1.6"
-  spec.add_dependency "rake", "~> 13.0"
-  spec.add_dependency "minitest", "~> 5.0"
+  spec.add_dependency "thor"
+
+  spec.add_development_dependency "debug"
+  spec.add_development_dependency "rake"
+  spec.add_development_dependency "minitest"
 end
