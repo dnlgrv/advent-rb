@@ -19,7 +19,7 @@ class Advent::Cli < Thor
 
   desc "download YEAR DAY", "download input"
   def download(year, day)
-    get "https://adventofcode.com/#{year}/day/#{day}/input", "#{year}/.day#{day}_input.txt", http_headers:
+    get "https://adventofcode.com/#{year}/day/#{day}/input", "#{year}/.day#{day}_input.txt", http_headers: http_headers
   end
 
   desc "new YEAR DAY", "start a new solution"
