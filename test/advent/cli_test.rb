@@ -1,6 +1,4 @@
 require "test_helper"
-
-require "advent/cli"
 require "date"
 
 class Advent::CliTest < Advent::TestCase

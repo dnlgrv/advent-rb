@@ -1,7 +1,8 @@
-$LOAD_PATH.unshift File.expand_path("../lib", __dir__)
-require "advent"
-
+require "bundler/setup"
 require "minitest/autorun"
+require "debug"
+
+require "advent"
 
 DUMMY_ROOT_PATH = Pathname.new File.expand_path("dummy", __dir__)
 
