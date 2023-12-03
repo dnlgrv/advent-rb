@@ -1,18 +1,18 @@
 require "advent"
 require "minitest/autorun"
 
-require_relative "../day<%= day %>"
+require_relative "../../<%= year %>/day<%= day %>"
 
 class Day<%= day %>Test < Advent::TestCase
   def setup
     @solution = Day<%= day %>.new
   end
 
-  # def test_part1
-  #   assert_equal 123, @solution.part1
+  # def test_part_1
+  #   assert_equal 123, @solution.part_1
   # end
 
-  # def test_part2
-  #   assert_equal 123, @solution.part2
+  # def test_part_2
+  #   assert_equal 123, @solution.part_2
   # end
 end
